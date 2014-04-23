@@ -20,21 +20,14 @@ RUN apt-get update && apt-get upgrade -y
 ## Uncomment this to enable the insecure key.
 RUN /usr/sbin/enable_insecure_key
 
-RUN apt-get -y -q install vim telnet wget mysql-client mysql-client-5.5 php5-cli php5 php5-mysql php5-curl php5-gd php5-mcrypt php-apc drush apache2 libapache2-mod-php5 git 
-RUN a2dissite default; a2enmod ssl; a2enmod rewrite; a2enmod expires;
+RUN apt-get -y -q install vim telnet wget mysql-server 
 
 #Add apache script
-RUN mkdir /etc/service/apache2
-ADD ./apache2.sh /etc/service/apache2/run
-ADD ./devssl.key /etc/apache2/devssl.key
-ADD ./devssl.crt /etc/apache2/devssl.crt
-ADD ./ports.conf /etc/apache2/ports.conf
-ADD ./example.loc /etc/apache2/sites-available/example.loc
-#NOTE CHECK PHP BEFORE NEXT RUN
-ADD ./php.ini /etc/php5/apache2/php.ini
-ADD ./apc.ini /etc/php5/conf.d/apc.ini
+RUN mkdir /etc/service/mysql
+ADD ./mysql.sh /etc/service/mysql/run
+ADD ./my.cnf /etc/mysql/conf.d/my.cnf
 
-EXPOSE 22 80 443
+EXPOSE 22 3306
 
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
