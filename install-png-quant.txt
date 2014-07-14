@@ -1,0 +1,19 @@
+Notes to install pngquant
+
+
+cd to /usr/local/src
+download libpng-16
+http://sourceforge.net/projects/libpng/files/libpng16/1.6.10/
+
+cd and ./configure && make
+make install
+
+
+ln -s /usr/local/lib/libpng16.so.16 /usr/lib/libpng.so.16
+ln -s /usr/local/lib/libpng16.so /usr/lib/libpng.so
+
+
+https://github.com/pornel/pngquant
+cd pngquant
+./configure && make
+make install
