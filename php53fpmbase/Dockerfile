@@ -20,9 +20,16 @@ RUN apt-get update && apt-get upgrade -y
 ## Uncomment this to enable the insecure key.
 RUN /usr/sbin/enable_insecure_key
 
-RUN apt-get -y -q install vim telnet wget mysql-client mysql-client-5.5 mysql-server apache2 dnsmasq git libmcrypt-dev 
+RUN apt-get -y -q install vim telnet wget mysql-client mysql-client-5.5 mysql-server apache2 dnsmasq git subversion libmcrypt-dev libreadline6 libreadline6-dev
 RUN apt-get -y -q build-dep php5
-RUN a2dissite default; a2enmod ssl; a2enmod rewrite; a2enmod expires;
+RUN a2dissite default; a2enmod ssl; a2enmod rewrite; a2enmod expires; a2enmod proxy_fcgi;
+
+
+#download and compile php5-fpm
+RUN mkdir /tmp/php-5.3.28
+WORKDIR /tmp/php-5.3.28
+ADD ./build/php-fpm-5.3-build.sh /tmp/php-5.3.28/php-fpm-5.3-build.sh
+RUN /tmp/php-5.3.28/php-fpm-5.3-build.sh
 
 # Add apache script
 RUN mkdir /etc/service/apache2
@@ -31,6 +38,7 @@ ADD ./runit/apache2.sh /etc/service/apache2/run
 ADD ./devssl.key /etc/apache2/devssl.key
 ADD ./devssl.crt /etc/apache2/devssl.crt
 ADD ./conf/ports.conf /etc/apache2/ports.conf
+ADD ./conf/000-default.conf /etc/apache2/sites-available/000-default.conf
 
 #Add mysql script
 RUN mkdir /etc/service/mysql
@@ -40,11 +48,17 @@ ADD ./conf/my.cnf /etc/mysql/conf.d/my.cnf
 # dnsmasq configuration
 ADD ./conf/dnsmasq.conf /etc/dnsmasq.conf
 ADD ./conf/resolv.dnsmasq.conf /etc/resolv.dnsmasq.conf
-ADD ./conf/0hosts /etc/dnsmasq.d/0hosts
+#ADD ./conf/0hosts /etc/dnsmasq.d/0hosts
 
 # add dnsmasq runit script
 RUN mkdir /etc/service/dnsmasq
 ADD ./runit/dnsmasq.sh /etc/service/dnsmasq/run
+
+#add php-fpm conf
+RUN mkdir /etc/service/php-fpm/
+ADD ./conf/php.ini /opt/php-5.3.28/conf/php.ini
+ADD ./conf/php-fpm.conf /opt/php-5.3.28/build/etc/php-fpm.conf
+ADD ./runit/php-fpm.sh /etc/service/php-fpm/run
 
 EXPOSE 22 80 443 3306
 
