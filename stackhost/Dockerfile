@@ -20,16 +20,22 @@ RUN apt-get update && apt-get upgrade -y
 ## Uncomment this to enable the insecure key.
 RUN /usr/sbin/enable_insecure_key
 
-RUN apt-get -y -q install vim telnet wget mysql-client mysql-client-5.5 mysql-server apache2 dnsmasq git subversion libmcrypt-dev libreadline6 libreadline6-dev
+RUN apt-get -y -q install vim telnet wget mysql-client mysql-client-5.5 mysql-server apache2 dnsmasq git subversion libmcrypt-dev libreadline6 libreadline6-dev libgd2-xpm-dev
 RUN apt-get -y -q build-dep php5
 RUN a2dissite default; a2enmod ssl; a2enmod rewrite; a2enmod expires; a2enmod proxy_fcgi;
 
 
 #download and compile php5-fpm
-RUN mkdir /tmp/php-5.3.28
-WORKDIR /tmp/php-5.3.28
-ADD ./build/php-fpm-5.3-build.sh /tmp/php-5.3.28/php-fpm-5.3-build.sh
-RUN /tmp/php-5.3.28/php-fpm-5.3-build.sh
+RUN mkdir /tmp/php-5.5
+WORKDIR /tmp/php-5.5
+ADD ./build/php-fpm-5.5-build.sh /tmp/php-5.5/php-fpm-5.5-build.sh
+RUN /tmp/php-5.5/php-fpm-5.5-build.sh
+
+#download and compile php5-fpm
+RUN mkdir /tmp/php-5.3
+WORKDIR /tmp/php-5.3
+ADD ./build/php-fpm-5.3-build.sh /tmp/php-5.3/php-fpm-5.3-build.sh
+RUN /tmp/php-5.3/php-fpm-5.3-build.sh
 
 # Add apache script
 RUN mkdir /etc/service/apache2
@@ -56,9 +62,25 @@ ADD ./runit/dnsmasq.sh /etc/service/dnsmasq/run
 
 #add php-fpm conf
 RUN mkdir /etc/service/php-fpm/
-ADD ./conf/php.ini /opt/php-5.3.28/conf/php.ini
-ADD ./conf/php-fpm.conf /opt/php-5.3.28/build/etc/php-fpm.conf
+ADD ./conf/php.ini /opt/php-5.5/conf/php.ini
+ADD ./conf/php-fpm.conf /opt/php-5.5/conf/php-fpm.conf
 ADD ./runit/php-fpm.sh /etc/service/php-fpm/run
+RUN mkdir /opt/php-5.5/conf/pools.d
+ADD ./conf/php-www-pool.conf /opt/php-5.5/conf/pools.d/www-pool.conf
+
+#add php-fpm-5.3 conf
+RUN mkdir /etc/service/php-fpm-5.3/
+ADD ./conf/php.ini /opt/php-5.3/conf/php.ini
+ADD ./conf/php-fpm.conf /opt/php-5.3/conf/php-fpm.conf
+ADD ./runit/php-fpm-5.3.sh /etc/service/php-fpm-5.3/run
+RUN mkdir /opt/php-5.3/conf/pools.d
+
+#change refs to php-5.3 in conf files
+ADD ./conf/php-www-pool.conf /opt/php-5.3/conf/pools.d/www-pool.conf
+RUN sed -i -e s/php-5.5/php-5.3/g /opt/php-5.3/conf/php-fpm.conf
+RUN sed -i -e s/php-fpm.log/php-fpm-5.3.log/g /opt/php-5.3/conf/php-fpm.conf
+RUN sed -i -e s/php-5.5/php-5.3/g /opt/php-5.3/conf/php.ini
+RUN sed -i -e s/9000/9001/g /opt/php-5.3/conf/pools.d/www-pool.conf
 
 EXPOSE 22 80 443 3306
 
