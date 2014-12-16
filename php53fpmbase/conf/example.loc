@@ -1,0 +1,20 @@
+<VirtualHost *:80>
+  ServerName localhost
+  DocumentRoot /var/www/localhost/htdocs
+  ProxyPassMatch ^/(.*\.php(/.*)?)$ fcgi://127.0.0.1:9000/var/www/localhost/htdocs/$1
+</VirtualHost>
+
+<IfModule mod_ssl.c>
+  <VirtualHost _default_:443>
+    BrowserMatch ".*MSIE.*" \
+      nokeepalive ssl-unclean-shutdown \
+      downgrade-1.0 force-response-1.0
+    DocumentRoot /var/www/localhost/htdocs
+    ServerName localhost
+    SSLCertificateFile    /etc/apache2/devssl.crt
+    SSLCertificateKeyFile /etc/apache2/devssl.key
+    SSLEngine on
+    ProxyPassMatch ^/(.*\.php(/.*)?)$ fcgi://127.0.0.1:9000/var/www/localhost/htdocs/$1
+  </VirtualHost>
+</IfModule>
+

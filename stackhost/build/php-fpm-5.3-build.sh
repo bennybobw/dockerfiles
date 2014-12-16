@@ -40,6 +40,7 @@ mkdir "$BASE_DIR/xdebug"
 mkdir "$BASE_DIR/zend_extensions"
 
 #if we need shared module plus dir --enable-module=shared,/usr/mydir
+#zlib is not shared currently because there is an error with ubuntu and php 5.5 if it's shared
 ./configure --prefix="$PREFIX_DIR"  \
   --with-config-file-path="$CONFIG_DIR" \
   --enable-bcmath=shared \
@@ -69,6 +70,7 @@ mkdir "$BASE_DIR/zend_extensions"
   --with-gd=shared \
   --with-gettext=shared \
   --with-jpeg-dir=/usr \
+  --with-mcrypt=shared,/usr \
   --with-mhash=shared \
   --with-mysql=shared \
   --with-mysqli=shared \
@@ -78,7 +80,7 @@ mkdir "$BASE_DIR/zend_extensions"
   --with-pdo_pgsql=shared \
   --with-png-dir=/usr \
   --with-readline=shared \
-  --with-zlib=shared 
+  --with-zlib
 
 make -j4 && make install
 cp -R "/tmp/$PHP_VER" "/opt/$PHP_VER/src"

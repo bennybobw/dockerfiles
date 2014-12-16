@@ -1,11 +1,8 @@
 #!/bin/bash
 
-PHP_VER=php-5.5.17
-PHP_VER_SHORT=php-5.5
-mkdir -p "/tmp/$PHP_VER"
-cd "/tmp/$PHP_VER"
-wget "http://us2.php.net/get/$PHP_VER.tar.bz2/from/this/mirror" -O "/tmp/$PHP_VER_SHORT.tar.bz2" && tar -xjf "/tmp/$PHP_VER_SHORT.tar.bz2" --strip-components=1
-BASE_DIR="/opt/$PHP_VER_SHORT"
+cd /tmp/php-5.3.28
+wget http://us2.php.net/get/php-5.3.28.tar.bz2/from/this/mirror -O /tmp/php-5.3.tar.bz2 && tar -xjf /tmp/php-5.3.tar.bz2 --strip-components=1
+BASE_DIR="/opt/php-5.3.28"
 mkdir -p "$BASE_DIR"
 PREFIX_DIR="$BASE_DIR/build"
 CONFIG_DIR="$BASE_DIR/conf"
@@ -65,11 +62,9 @@ mkdir "$BASE_DIR/zend_extensions"
   --enable-zip=shared \
   --with-bz2=shared \
   --with-curl=shared \
-  --with-freetype-dir=/usr \
   --with-gd=shared \
   --with-gettext=shared \
   --with-jpeg-dir=/usr \
-  --with-mcrypt=shared,/usr \
   --with-mhash=shared \
   --with-mysql=shared \
   --with-mysqli=shared \
@@ -79,10 +74,10 @@ mkdir "$BASE_DIR/zend_extensions"
   --with-pdo_pgsql=shared \
   --with-png-dir=/usr \
   --with-readline=shared \
-  --with-zlib
+  --with-zlib=shared 
 
 make -j4 && make install
-cp -R "/tmp/$PHP_VER" "/opt/$PHP_VER/src"
+cp -R /tmp/php-5.3.28 /opt/php-5.3.28/src
 
 #add xdebug
 wget https://github.com/xdebug/xdebug/archive/XDEBUG_2_2_5.tar.gz -O /tmp/xdebug.tar.gz 
@@ -94,3 +89,7 @@ cd "$XDEBUG_DIR"
 make
 cp modules/xdebug.la "$BASE_DIR/zend_extensions"
 cp modules/xdebug.so "$BASE_DIR/zend_extensions"
+
+
+
+
